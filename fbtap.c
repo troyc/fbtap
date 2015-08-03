@@ -138,9 +138,12 @@ fbtap_mmap (struct file *filp, struct vm_area_struct *vma)
         return -EINVAL;
     }
 
+#if (LINUX_VERSION_CODE >= KERNEL_VERSION(3,18,0))
+    pgprot_val(vma->vm_page_prot) |= cachemode2protval(_PAGE_CACHE_MODE_WC);
+#else
     vma->vm_page_prot = __pgprot (((pgprot_val (vma->vm_page_prot)
                 | _PAGE_CACHE_WC) & ~_PAGE_PCD));
-
+#endif
     vma->vm_ops = &fbtap_vm_ops;
     vma->vm_private_data = fb;
 
@@ -151,7 +154,7 @@ fbtap_mmap (struct file *filp, struct vm_area_struct *vma)
     return 0;
 }
 
-static int
+static long
 fbtap_ioctl (struct file *filp, unsigned int cmd, unsigned long arg)
 {
     unsigned int p, num_pages;
@@ -256,12 +259,15 @@ error_clear:
     return -EFAULT;
 }
 
+#if (LINUX_VERSION_CODE < KERNEL_VERSION(2,6,33))
 static int
 fbtap_ioctl_legacy (struct inode *inode, struct file *filp,
                     unsigned int cmd, unsigned long arg)
 {
     return fbtap_ioctl (filp, cmd, arg);
 }
+
+#endif  /* (LINUX_VERSION_CODE >= KERNEL_VERSION(2,6,33)) */
 
 static ssize_t
 fbtap_read (struct file *filp, char __user *buf, size_t len, loff_t *offset)
