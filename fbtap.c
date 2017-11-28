@@ -67,8 +67,14 @@ fbtap_vma_close (struct vm_area_struct *vma)
 }
 
 static int
+#if (LINUX_VERSION_CODE >= KERNEL_VERSION(4,11,0))
+fbtap_vma_fault (struct vm_fault *vmf)
+{
+    struct vm_area_struct *vma = vmf->vma;
+#else
 fbtap_vma_fault (struct vm_area_struct *vma, struct vm_fault *vmf)
 {
+#endif
     struct page * page;
     unsigned long offset = vmf->pgoff << PAGE_SHIFT;
     int ret = 0;
