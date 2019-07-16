@@ -201,7 +201,7 @@ fbtap_ioctl (struct file *filp, unsigned int cmd, unsigned long arg)
         break;
 
     case FBTAP_IOCGSIZE:
-        put_user (fb->size >> PAGE_SHIFT, (unsigned int*) arg);
+        put_user (fb->size >> PAGE_SHIFT, (unsigned long *)arg);
         break;
 
     case FBTAP_IOCALLOCFB:
