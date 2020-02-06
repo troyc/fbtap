@@ -1,31 +1,24 @@
-#
-# Copyright (c) 2012 Citrix Systems, Inc.
-# 
-# This program is free software; you can redistribute it and/or modify
-# it under the terms of the GNU General Public License as published by
-# the Free Software Foundation; either version 2 of the License, or
-# (at your option) any later version.
-# 
-# This program is distributed in the hope that it will be useful,
-# but WITHOUT ANY WARRANTY; without even the implied warranty of
-# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-# GNU General Public License for more details.
-# 
-# You should have received a copy of the GNU General Public License
-# along with this program; if not, write to the Free Software
-# Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
-#
-
+ifneq ($(KERNELRELEASE),)
+# kbuild part of makefile
 include Kbuild
 
-all modules modules_install:
-	$(MAKE) -C $(KERNELDIR) M=$(PWD) $@
+else
+# normal makefile
+KERNEL_VERSION ?= `uname -r`
+KERNEL_SRC ?= /lib/modules/$(KERNEL_VERSION)/build
+INSTALL_HDR_PATH ?= /usr
+
+default:
+	$(MAKE) -C $(KERNEL_SRC) M=$$PWD
 
 clean:
-	$(MAKE) -C $(KERNELDIR) M=$(PWD) $@
-	rm -f Makefile.xen
+	$(MAKE) -C $(KERNEL_SRC) M=$$PWD clean
 
-install:
-	install -m 0755 -d $(PREFIX)/include
-	install -m 0644 fbtap.h $(PREFIX)/include
+modules_install:
+	$(MAKE) -C $(KERNEL_SRC) M=$$PWD modules_install
 
+headers_install:
+	install -m 0755 -d $(INSTALL_HDR_PATH)/include
+	install -m 0644 fbtap.h $(INSTALL_HDR_PATH)/include
+
+endif
