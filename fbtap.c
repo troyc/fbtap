@@ -66,7 +66,7 @@ fbtap_vma_close (struct vm_area_struct *vma)
             atomic_sub_return (1, &fb->counter));
 }
 
-static int
+static unsigned int
 #if (LINUX_VERSION_CODE >= KERNEL_VERSION(4,11,0))
 fbtap_vma_fault (struct vm_fault *vmf)
 {
